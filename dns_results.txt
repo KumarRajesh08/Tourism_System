@@ -1,0 +1,7 @@
+SRV RECORDS:
+ac-qynbmnx-shard-00-02.vcvk1qe.mongodb.net:27017
+ac-qynbmnx-shard-00-01.vcvk1qe.mongodb.net:27017
+ac-qynbmnx-shard-00-00.vcvk1qe.mongodb.net:27017
+
+TXT RECORDS:
+authSource=admin&replicaSet=atlas-6uhmoa-shard-0
