@@ -66,13 +66,13 @@ const sessionOptions = {
   store,
   secret: process.env.SECRET,
   resave: false,
-  saveUninitialized: false,                            // ✅ CHANGED: true → false (security best practice)
+  saveUninitialized: false,                           
   cookie: {
     expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
     maxAge: 7 * 24 * 60 * 60 * 1000,
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",     // ✅ NEW: HTTPS only in production
-    sameSite: "strict",                                // ✅ NEW: CSRF protection at cookie level
+    secure: process.env.NODE_ENV === "production",     
+    sameSite: "strict",                                
   },
 };
 
@@ -130,6 +130,7 @@ app.use((err, req, res, next) => {
 
 // ── Server ────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on port ${PORT}`);
 });
