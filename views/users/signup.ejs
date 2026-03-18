@@ -1,30 +1,411 @@
 <% layout("/layouts/boilerplate") %>
 
-    <body>
-        <div class="container mt-3">
-            <div class="row justify-content-center">
-                <div class="login-signup-form-inp">
-                    <h3 class="mb-3">Signup on WanderLust</h3>
-                    <form action="/signup" method="post" novalidate class="needs-validation">
-                        <div class="mb-3">
-                            <label for="username" class="form-label">Username</label>
-                            <input type="text" class="form-control" name="username" id="username"
-                                placeholder="Enter Username" required>
-                            <div class="valid-feedback">Looks good!</div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="email" class="form-label">Email</label>
-                            <input type="text" class="form-control" name="email" id="email" placeholder="Enter Email"
-                                required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Password</label>
-                            <input type="password" class="form-control" name="password" id="password"
-                                placeholder="Enter Password" required>
-                        </div>
-                        <button class="btn btn-success">SignUp</button>
-                    </form>
-                </div>
-            </div>
+<style>
+  .login-signup-form-inp {
+    max-width: 440px;
+    width: 100%;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 2.5rem;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+  }
+
+  .brand-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 1.5rem;
+  }
+
+  .brand-icon {
+    width: 36px;
+    height: 36px;
+    background: #1D9E75;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .brand-icon svg {
+    width: 20px;
+    height: 20px;
+    fill: white;
+  }
+
+  .brand-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: #111827;
+  }
+
+  .form-title {
+    font-size: 22px;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 0.25rem;
+  }
+
+  .form-subtitle {
+    font-size: 14px;
+    color: #6b7280;
+    margin-bottom: 1.8rem;
+  }
+
+  .form-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 5px;
+  }
+
+  .inp-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .inp-icon {
+    position: absolute;
+    left: 12px;
+    color: #9ca3af;
+    pointer-events: none;
+    display: flex;
+  }
+
+  .inp-icon svg {
+    width: 16px;
+    height: 16px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .form-control {
+    padding-left: 40px !important;
+    border-radius: 10px !important;
+    border: 1px solid #d1d5db !important;
+    font-size: 14px !important;
+    height: 42px;
+    transition: border-color .2s, box-shadow .2s;
+  }
+
+  .form-control:focus {
+    border-color: #1D9E75 !important;
+    box-shadow: 0 0 0 3px rgba(29,158,117,0.12) !important;
+    outline: none;
+  }
+
+  .form-control.is-invalid {
+    border-color: #ef4444 !important;
+  }
+
+  .form-control.is-valid {
+    border-color: #22c55e !important;
+  }
+
+  .toggle-pw {
+    position: absolute;
+    right: 12px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #9ca3af;
+    display: flex;
+    padding: 0;
+  }
+
+  .toggle-pw svg {
+    width: 16px;
+    height: 16px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .field-hint {
+    font-size: 12px;
+    min-height: 18px;
+    margin-top: 4px;
+  }
+
+  .field-hint.ok  { color: #16a34a; }
+  .field-hint.err { color: #dc2626; }
+
+  .strength-bars {
+    display: flex;
+    gap: 4px;
+    margin-top: 8px;
+  }
+
+  .strength-bars .bar {
+    flex: 1;
+    height: 3px;
+    border-radius: 2px;
+    background: #e5e7eb;
+    transition: background .3s;
+  }
+
+  .strength-bars .bar.weak   { background: #ef4444; }
+  .strength-bars .bar.medium { background: #f59e0b; }
+  .strength-bars .bar.strong { background: #22c55e; }
+
+  .btn-signup {
+    width: 100%;
+    padding: 11px;
+    background: #1D9E75;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 0.4rem;
+    transition: background .15s, transform .1s;
+  }
+
+  .btn-signup:hover    { background: #0F6E56; }
+  .btn-signup:active   { transform: scale(0.99); }
+  .btn-signup:disabled { background: #d1d5db; cursor: not-allowed; }
+
+  .signin-link {
+    text-align: center;
+    font-size: 13px;
+    color: #6b7280;
+    margin-top: 1.4rem;
+  }
+
+  .signin-link a {
+    color: #1D9E75;
+    font-weight: 500;
+    text-decoration: none;
+  }
+</style>
+
+<body>
+  <div class="container mt-3">
+    <div class="row justify-content-center">
+      <div class="login-signup-form-inp">
+
+        <!-- Brand -->
+        <div class="brand-row">
+          <div class="brand-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+          </div>
+          <span class="brand-name">Tourism System</span>
         </div>
-    </body>
+
+        <h3 class="form-title">Create your account</h3>
+        <p class="form-subtitle">Join thousands exploring the world</p>
+
+        <!-- Flash errors (if using connect-flash) -->
+        <% if (typeof error !== 'undefined' && error) { %>
+          <div class="alert alert-danger py-2" style="font-size:13px; border-radius:10px;">
+            <%= error %>
+          </div>
+        <% } %>
+
+        <form action="/signup" method="post" novalidate id="signupForm" autocomplete="off">
+
+          <!-- CSRF Token (requires csurf middleware on server) -->
+          <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+
+          <!-- Username -->
+          <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <div class="inp-wrap">
+              <span class="inp-icon">
+                <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </span>
+              <input
+                type="text"
+                class="form-control"
+                name="username"
+                id="username"
+                placeholder="e.g. traveller_raj"
+                autocomplete="username"
+                maxlength="30"
+                required
+              >
+            </div>
+            <div class="field-hint" id="usernameHint">3–30 characters, letters, numbers, underscore</div>
+          </div>
+
+          <!-- Email -->
+          <div class="mb-3">
+            <label for="email" class="form-label">Email address</label>
+            <div class="inp-wrap">
+              <span class="inp-icon">
+                <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              </span>
+              <input
+                type="email"
+                class="form-control"
+                name="email"
+                id="email"
+                placeholder="you@example.com"
+                autocomplete="email"
+                required
+              >
+            </div>
+            <div class="field-hint" id="emailHint"></div>
+          </div>
+
+          <!-- Password -->
+          <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <div class="inp-wrap">
+              <span class="inp-icon">
+                <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+              </span>
+              <input
+                type="password"
+                class="form-control"
+                name="password"
+                id="password"
+                placeholder="Min. 8 characters"
+                autocomplete="new-password"
+                required
+              >
+              <button type="button" class="toggle-pw" id="togglePw" aria-label="Show password">
+                <svg id="eyeIcon" viewBox="0 0 24 24">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+              </button>
+            </div>
+            <div class="strength-bars" id="strengthBars">
+              <div class="bar" id="b1"></div>
+              <div class="bar" id="b2"></div>
+              <div class="bar" id="b3"></div>
+              <div class="bar" id="b4"></div>
+            </div>
+            <div class="field-hint" id="pwHint"></div>
+          </div>
+
+          <button type="submit" class="btn btn-signup" id="submitBtn">Sign Up</button>
+        </form>
+
+        <div class="signin-link">
+          Already have an account? <a href="/login">Sign in</a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</body>
+
+<script>
+  // ── Helpers ──────────────────────────────────────
+  function setHint(hintEl, inputEl, msg, type) {
+    hintEl.textContent = msg;
+    hintEl.className = 'field-hint ' + (type || '');
+    inputEl.classList.remove('is-valid', 'is-invalid');
+    if (type === 'ok')  inputEl.classList.add('is-valid');
+    if (type === 'err') inputEl.classList.add('is-invalid');
+  }
+
+  function pwStrength(p) {
+    let s = 0;
+    if (p.length >= 8)          s++;
+    if (/[A-Z]/.test(p))        s++;
+    if (/[0-9]/.test(p))        s++;
+    if (/[^A-Za-z0-9]/.test(p)) s++;
+    return s;
+  }
+
+  // ── Username validation ───────────────────────────
+  const uInp   = document.getElementById('username');
+  const uHint  = document.getElementById('usernameHint');
+
+  uInp.addEventListener('input', () => {
+    const v = uInp.value.trim();
+    if (!v) { setHint(uHint, uInp, '3–30 characters, letters, numbers, underscore', ''); return; }
+    if (/^[a-zA-Z0-9_]{3,30}$/.test(v))
+      setHint(uHint, uInp, 'Looks good!', 'ok');
+    else
+      setHint(uHint, uInp, 'Only letters, numbers, underscore — 3 to 30 chars', 'err');
+  });
+
+  // ── Email validation ──────────────────────────────
+  const eInp  = document.getElementById('email');
+  const eHint = document.getElementById('emailHint');
+
+  eInp.addEventListener('input', () => {
+    const v = eInp.value.trim();
+    if (!v) { setHint(eHint, eInp, '', ''); return; }
+    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v))
+      setHint(eHint, eInp, 'Valid email!', 'ok');
+    else
+      setHint(eHint, eInp, 'Enter a valid email address', 'err');
+  });
+
+  // ── Password strength ─────────────────────────────
+  const pInp  = document.getElementById('password');
+  const pHint = document.getElementById('pwHint');
+  const bars  = ['b1','b2','b3','b4'].map(id => document.getElementById(id));
+  const barClass = ['', 'weak', 'medium', 'medium', 'strong'];
+
+  pInp.addEventListener('input', () => {
+    const v = pInp.value;
+    if (!v) {
+      bars.forEach(b => b.className = 'bar');
+      setHint(pHint, pInp, '', '');
+      return;
+    }
+    const s = pwStrength(v);
+    const cls = s <= 1 ? 'weak' : s <= 2 ? 'medium' : 'strong';
+    bars.forEach((b, i) => b.className = 'bar ' + (i < s ? cls : ''));
+
+    if (s <= 1)      setHint(pHint, pInp, 'Weak — add uppercase, number or symbol', 'err');
+    else if (s <= 2) setHint(pHint, pInp, 'Moderate — almost there', '');
+    else             setHint(pHint, pInp, 'Strong password!', 'ok');
+  });
+
+  // ── Show / hide password ──────────────────────────
+  document.getElementById('togglePw').addEventListener('click', () => {
+    const show = pInp.type === 'password';
+    pInp.type = show ? 'text' : 'password';
+    document.getElementById('eyeIcon').innerHTML = show
+      ? '<path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>'
+      : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+  });
+
+  // ── Form submit validation ────────────────────────
+  let submitCount = 0;
+  const submitBtn = document.getElementById('submitBtn');
+
+  document.getElementById('signupForm').addEventListener('submit', (e) => {
+    let valid = true;
+
+    if (!/^[a-zA-Z0-9_]{3,30}$/.test(uInp.value.trim())) {
+      setHint(uHint, uInp, 'Valid username required', 'err');
+      valid = false;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(eInp.value.trim())) {
+      setHint(eHint, eInp, 'Valid email required', 'err');
+      valid = false;
+    }
+
+    if (pwStrength(pInp.value) < 2) {
+      setHint(pHint, pInp, 'Please use a stronger password', 'err');
+      valid = false;
+    }
+
+    if (!valid) { e.preventDefault(); return; }
+
+    // Client-side rate limit
+    submitCount++;
+    if (submitCount >= 5) {
+      e.preventDefault();
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Too many attempts — please wait';
+    }
+  });
+</script>
