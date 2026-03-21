@@ -1,4 +1,5 @@
 const Listing = require("../models/listing");
+const nodemailer = require("nodemailer");
 
 module.exports.index = async (req, res) => {
   let allListings = await Listing.find();
@@ -173,7 +174,132 @@ module.exports.destroyListing = async (req, res) => {
 };
 
 module.exports.reserveListing = async (req, res) => {
-  let { id } = req.params;
-  req.flash("success", "Reservation Details sent to your Email!");
-  res.redirect(`/listings/${id}`);
+  try {
+    let { id } = req.params;
+    let listing = await Listing.findById(id).populate("owner");
+
+    if (!listing) {
+      req.flash("error", "Listing not found!");
+      return res.redirect("/listings");
+    }
+
+    const guest = req.user;
+
+    // ── Transporter Setup ──
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    // ── Mail to Guest ──
+    const guestMail = {
+      from: `"Tourism System" <${process.env.EMAIL_USER}>`,
+      to: guest.email,
+      subject: `✅ Reservation Confirmed — ${listing.title}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">
+          <div style="background: #1D9E75; padding: 24px; text-align: center;">
+            <h1 style="color: white; margin: 0; font-size: 22px;">🏡 Reservation Confirmed!</h1>
+          </div>
+          <div style="padding: 24px;">
+            <p style="font-size: 16px;">Hi <b>${guest.username}</b>,</p>
+            <p>Your reservation request has been sent successfully. Here are your booking details:</p>
+            <table style="width: 100%; border-collapse: collapse; margin: 16px 0;">
+              <tr style="background: #f9fafb;">
+                <td style="padding: 10px; font-weight: bold; border: 1px solid #e5e7eb;">Property</td>
+                <td style="padding: 10px; border: 1px solid #e5e7eb;">${listing.title}</td>
+              </tr>
+              <tr>
+                <td style="padding: 10px; font-weight: bold; border: 1px solid #e5e7eb;">Location</td>
+                <td style="padding: 10px; border: 1px solid #e5e7eb;">${listing.location}, ${listing.country}</td>
+              </tr>
+              <tr style="background: #f9fafb;">
+                <td style="padding: 10px; font-weight: bold; border: 1px solid #e5e7eb;">Price</td>
+                <td style="padding: 10px; border: 1px solid #e5e7eb;">₹${listing.price.toLocaleString("en-IN")} / night</td>
+              </tr>
+              <tr>
+                <td style="padding: 10px; font-weight: bold; border: 1px solid #e5e7eb;">Category</td>
+                <td style="padding: 10px; border: 1px solid #e5e7eb;">${listing.category}</td>
+              </tr>
+              <tr style="background: #f9fafb;">
+                <td style="padding: 10px; font-weight: bold; border: 1px solid #e5e7eb;">Owner</td>
+                <td style="padding: 10px; border: 1px solid #e5e7eb;">${listing.owner.username}</td>
+              </tr>
+            </table>
+            <p style="color: #6b7280; font-size: 13px;">The property owner will contact you shortly to confirm the dates.</p>
+            <div style="text-align: center; margin-top: 20px;">
+              <a href="${process.env.APP_URL || 'http://localhost:8080'}/listings/${listing._id}"
+                style="background: #1D9E75; color: white; padding: 12px 28px; border-radius: 8px; text-decoration: none; font-weight: bold;">
+                View Listing
+              </a>
+            </div>
+          </div>
+          <div style="background: #f9fafb; padding: 14px; text-align: center; font-size: 12px; color: #9ca3af;">
+            Tourism System &copy; ${new Date().getFullYear()}
+          </div>
+        </div>
+      `,
+    };
+
+    // ── Mail to Owner ──
+    const ownerMail = {
+      from: `"Tourism System" <${process.env.EMAIL_USER}>`,
+      to: listing.owner.email,
+      subject: `🔔 New Reservation Request — ${listing.title}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">
+          <div style="background: #111827; padding: 24px; text-align: center;">
+            <h1 style="color: white; margin: 0; font-size: 22px;">🔔 New Reservation Request!</h1>
+          </div>
+          <div style="padding: 24px;">
+            <p style="font-size: 16px;">Hi <b>${listing.owner.username}</b>,</p>
+            <p>Someone is interested in your property. Here are the details:</p>
+            <table style="width: 100%; border-collapse: collapse; margin: 16px 0;">
+              <tr style="background: #f9fafb;">
+                <td style="padding: 10px; font-weight: bold; border: 1px solid #e5e7eb;">Property</td>
+                <td style="padding: 10px; border: 1px solid #e5e7eb;">${listing.title}</td>
+              </tr>
+              <tr>
+                <td style="padding: 10px; font-weight: bold; border: 1px solid #e5e7eb;">Guest Name</td>
+                <td style="padding: 10px; border: 1px solid #e5e7eb;">${guest.username}</td>
+              </tr>
+              <tr style="background: #f9fafb;">
+                <td style="padding: 10px; font-weight: bold; border: 1px solid #e5e7eb;">Guest Email</td>
+                <td style="padding: 10px; border: 1px solid #e5e7eb;">${guest.email}</td>
+              </tr>
+              <tr>
+                <td style="padding: 10px; font-weight: bold; border: 1px solid #e5e7eb;">Price</td>
+                <td style="padding: 10px; border: 1px solid #e5e7eb;">₹${listing.price.toLocaleString("en-IN")} / night</td>
+              </tr>
+            </table>
+            <p style="color: #6b7280; font-size: 13px;">Please contact the guest at <b>${guest.email}</b> to confirm booking dates.</p>
+            <div style="text-align: center; margin-top: 20px;">
+              <a href="${process.env.APP_URL || 'http://localhost:8080'}/listings/${listing._id}"
+                style="background: #111827; color: white; padding: 12px 28px; border-radius: 8px; text-decoration: none; font-weight: bold;">
+                View Listing
+              </a>
+            </div>
+          </div>
+          <div style="background: #f9fafb; padding: 14px; text-align: center; font-size: 12px; color: #9ca3af;">
+            Tourism System &copy; ${new Date().getFullYear()}
+          </div>
+        </div>
+      `,
+    };
+
+    // ── Send Both Mails ──
+    await transporter.sendMail(guestMail);
+    await transporter.sendMail(ownerMail);
+
+    req.flash("success", "Reservation confirmed! Details sent to your email.");
+    res.redirect(`/listings/${id}`);
+
+  } catch (err) {
+    console.log("RESERVE ERROR:", err);
+    req.flash("error", "Reservation failed. Please try again!");
+    res.redirect(`/listings/${id}`);
+  }
 };
