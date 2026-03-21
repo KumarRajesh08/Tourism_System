@@ -74,6 +74,7 @@
     white-space: nowrap;
     transition: all 0.2s;
   }
+  .filter a i { font-size: 16px; }
   .filter a:hover { border-color: var(--accent); background: #f0fdf8; color: var(--accent-dark); }
   .filter.active a { border-color: var(--accent); background: var(--accent); color: #fff; }
 
@@ -150,14 +151,42 @@
 
     <div id="filters-container">
       <div id="filters">
-        <% const categories = ["Rooms", "Iconic-Cities", "Trending", "Mountains", "Castles", "Amazing-Pools", "Camping", "Farm", "Arctic", "Beach", "Boat"]; %>
+
+        <%
+          const categories = [
+            { value: "Rooms",             icon: "fa-solid fa-bed",                  label: "Rooms" },
+            { value: "Iconic-Cities",     icon: "fa-solid fa-mountain-city",        label: "Iconic Cities" },
+            { value: "Trending",          icon: "fa-solid fa-fire",                 label: "Trending" },
+            { value: "Mountains",         icon: "fa-solid fa-mountain-sun",         label: "Mountains" },
+            { value: "Castles",           icon: "fa-brands fa-fort-awesome",        label: "Castles" },
+            { value: "Amazing-Pools",     icon: "fa-solid fa-person-swimming",      label: "Amazing Pools" },
+            { value: "Camping",           icon: "fa-solid fa-campground",           label: "Camping" },
+            { value: "Farm",              icon: "fa-solid fa-cow",                  label: "Farm" },
+            { value: "Arctic",            icon: "fa-solid fa-snowflake",            label: "Arctic" },
+            { value: "Beach",             icon: "fa-solid fa-umbrella-beach",       label: "Beach" },
+            { value: "Boat",              icon: "fa-solid fa-sailboat",             label: "Boat" },
+            { value: "Ski-in-out",        icon: "fa-solid fa-person-snowboarding", label: "Ski-in/out" },
+            { value: "Apartment",         icon: "fa-solid fa-building",             label: "Apartment" },
+            { value: "New",               icon: "fa-solid fa-key",                  label: "New" },
+            { value: "Woodlands",         icon: "fa-solid fa-tree-city",            label: "Woodlands" },
+            { value: "Lake",              icon: "fa-solid fa-water",                label: "Lake" },
+            { value: "Cabins",            icon: "fa-solid fa-house",                label: "Cabins" },
+            { value: "Countryside",       icon: "fa-solid fa-house-chimney-window", label: "Countryside" },
+            { value: "Bed-and-Breakfasts",icon: "fa-solid fa-mug-hot",             label: "Bed & Breakfasts" },
+            { value: "Campsite",          icon: "fa-solid fa-tents",                label: "Campsite" },
+            { value: "Historical-Homes",  icon: "fa-solid fa-landmark",             label: "Historical Homes" },
+          ];
+        %>
+
         <% for(let cat of categories) { %>
           <div class="filter">
-            <a href="/listings/filter/<%= cat %>">
-              <i class="fa-solid fa-circle-dot"></i> <p><%= cat.replace('-', ' ') %></p>
+            <a href="/listings/filter/<%= cat.value %>">
+              <i class="<%= cat.icon %>"></i>
+              <p><%= cat.label %></p>
             </a>
           </div>
         <% } %>
+
       </div>
     </div>
 
@@ -193,8 +222,8 @@
             <div class="listing-card-body">
               <div class="listing-title"><%= listing.title %></div>
               <div class="listing-price">
-                &#8377;<span class="price-amount" 
-                             data-base="<%= listing.price %>" 
+                &#8377;<span class="price-amount"
+                             data-base="<%= listing.price %>"
                              data-gst="<%= listing.price ? Math.round(listing.price * 1.18) : 0 %>">
                   <%= listing.price ? listing.price.toLocaleString("en-In") : "0" %>
                 </span>
