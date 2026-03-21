@@ -24,7 +24,11 @@ module.exports.showListing = async (req, res) => {
 module.exports.createListing = async (req, res, next) => {
   try {
     if (!req.file) {
-      req.flash("error", "Image upload failed!");
+      req.flash("error", "Please upload an image!");
+      return res.redirect("/listings/new");
+    }
+    if (!req.body.listing.category) {
+      req.flash("error", "Please select a category!");
       return res.redirect("/listings/new");
     }
     let url = req.file.path;
@@ -37,6 +41,13 @@ module.exports.createListing = async (req, res, next) => {
     res.redirect("/listings");
   } catch (err) {
     console.log("CREATE LISTING ERROR:", err);
+    if (err.name === "ValidationError") {
+      const messages = Object.values(err.errors)
+        .map((e) => e.message)
+        .join(", ");
+      req.flash("error", messages);
+      return res.redirect("/listings/new");
+    }
     next(err);
   }
 };
