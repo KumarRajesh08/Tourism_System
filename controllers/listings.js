@@ -185,7 +185,8 @@ module.exports.reserveListing = async (req, res) => {
 
     const guest = req.user;
 
-    // ── Transporter Setup — Forced IPv4 & SSL for Render ✅ ──
+    // ── Transporter Setup — Forced IPv4 via custom DNS lookup ✅ ──
+    const dns = require("dns");
     const transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
       port: 465,
@@ -195,10 +196,14 @@ module.exports.reserveListing = async (req, res) => {
         pass: process.env.EMAIL_PASS,
       },
       tls: {
-        rejectUnauthorized: false,
+        rejectUnauthorized: false, // Don't fail on self-signed certs (common with Gmail SMTP)
       },
-      family: 4, // Force IPv4
+      // Force IPv4 resolution to prevent ENETUNREACH on Render's IPv6
+      lookup: (hostname, options, callback) => {
+        return dns.lookup(hostname, { family: 4 }, callback);
+      },
     });
+
 
 
     // ── Mail to Guest ──
