@@ -247,6 +247,8 @@
     <div class="form-card fade-up delay-1">
       <form action="/listings/<%= listing._id %>?_method=PUT" method="post" novalidate
         class="needs-validation" enctype="multipart/form-data">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
 
         <!-- ── Basic Info ── -->
         <div class="form-section">

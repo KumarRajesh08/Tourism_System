@@ -6,6 +6,9 @@ const listingController = require("../controllers/listings.js");
 const multer = require("multer");
 const { storage } = require("../cloudConfig.js");
 const upload = multer({ storage });
+const csrf = require("csurf");
+const csrfProtection = csrf();
+
 
 router
   .route("/")
@@ -13,6 +16,11 @@ router
   .post(
     isLoggedIn,
     upload.single("listing[image]"),
+    csrfProtection,
+    (req, res, next) => {
+      res.locals.csrfToken = req.csrfToken();
+      next();
+    },
     validateListing,
     wrapAsync(listingController.createListing)
   );
@@ -29,6 +37,11 @@ router
     isLoggedIn,
     isOwner,
     upload.single("listing[image]"),
+    csrfProtection,
+    (req, res, next) => {
+      res.locals.csrfToken = req.csrfToken();
+      next();
+    },
     validateListing,
     wrapAsync(listingController.updateListing)
   )

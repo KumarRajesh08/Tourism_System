@@ -6,6 +6,8 @@
                 <div class="login-signup-form-inp">
                     <h3 class="mb-3">Login on Tourism_System</h3>
                     <form action="/login" method="post" novalidate class="needs-validation">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
                         <div class="mb-3">
                             <label for="username" class="form-label">Username</label>
                             <input type="text" class="form-control" name="username" id="username"

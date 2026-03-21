@@ -84,14 +84,24 @@ passport.deserializeUser(User.deserializeUser());
 
 // ================= CSRF =================
 const csrfProtection = csrf();
-app.use(csrfProtection);
+app.use((req, res, next) => {
+  // Skip global CSRF check for multipart forms (handled in routes after multer)
+  if (req.method !== "GET" && req.headers["content-type"] && req.headers["content-type"].includes("multipart/form-data")) {
+    return next();
+  }
+  csrfProtection(req, res, next);
+});
+
 
 // ================= GLOBAL LOCALS =================
 app.use((req, res, next) => {
   res.locals.success = req.flash("success");
   res.locals.error = req.flash("error");
   res.locals.currUser = req.user;
-  res.locals.csrfToken = req.csrfToken();
+  if (typeof req.csrfToken === "function") {
+    res.locals.csrfToken = req.csrfToken();
+  }
+
 
   next(); // 🔥 VERY IMPORTANT
 });
