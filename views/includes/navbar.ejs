@@ -1,3 +1,144 @@
+<style>
+  /* ── Dark Mode Variables ── */
+  body.dark-mode {
+    --bs-body-bg: #111827;
+    --bs-body-color: #f9fafb;
+    background-color: #111827 !important;
+    color: #f9fafb !important;
+  }
+
+  body.dark-mode .navbar {
+    background-color: #1f2937 !important;
+    border-color: #374151 !important;
+  }
+
+  body.dark-mode .navbar-brand,
+  body.dark-mode #web-title,
+  body.dark-mode .nav-link,
+  body.dark-mode .dropdown-menu a {
+    color: #f9fafb !important;
+  }
+
+  body.dark-mode .dropdown-menu {
+    background-color: #1f2937 !important;
+    border-color: #374151 !important;
+  }
+
+  body.dark-mode .dropdown-menu hr {
+    border-color: #374151;
+  }
+
+  body.dark-mode .form-control {
+    background-color: #374151 !important;
+    border-color: #4b5563 !important;
+    color: #f9fafb !important;
+  }
+
+  body.dark-mode .form-control::placeholder {
+    color: #9ca3af !important;
+  }
+
+  body.dark-mode .listing-card,
+  body.dark-mode .form-card,
+  body.dark-mode .card {
+    background-color: #1f2937 !important;
+    border-color: #374151 !important;
+    color: #f9fafb !important;
+  }
+
+  body.dark-mode .listing-title,
+  body.dark-mode .listing-price {
+    color: #f9fafb !important;
+  }
+
+  body.dark-mode #filter-wrapper {
+    background-color: #111827 !important;
+    border-color: #374151 !important;
+  }
+
+  body.dark-mode .filter a {
+    background-color: #1f2937 !important;
+    border-color: #374151 !important;
+    color: #9ca3af !important;
+  }
+
+  body.dark-mode .filter a:hover,
+  body.dark-mode .filter.active a {
+    background-color: #1D9E75 !important;
+    color: #fff !important;
+  }
+
+  body.dark-mode .scroll-btn {
+    background-color: #1f2937 !important;
+    border-color: #374151 !important;
+    color: #f9fafb !important;
+  }
+
+  body.dark-mode .tax-toggle {
+    background-color: #1f2937 !important;
+    border-color: #374151 !important;
+    color: #f9fafb !important;
+  }
+
+  /* ── Toggle Switch Style ── */
+  .theme-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    padding: 6px 12px;
+    border-radius: 50px;
+    border: 1px solid #dee2e6;
+    background: transparent;
+    transition: all 0.2s;
+    margin-left: 6px;
+  }
+
+  body.dark-mode .theme-toggle {
+    border-color: #374151;
+    color: #f9fafb;
+  }
+
+  .theme-toggle .toggle-track {
+    width: 36px;
+    height: 20px;
+    background: #d1d5db;
+    border-radius: 50px;
+    position: relative;
+    transition: background 0.3s;
+    flex-shrink: 0;
+  }
+
+  body.dark-mode .theme-toggle .toggle-track {
+    background: #1D9E75;
+  }
+
+  .theme-toggle .toggle-thumb {
+    width: 14px;
+    height: 14px;
+    background: white;
+    border-radius: 50%;
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    transition: transform 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+  }
+
+  body.dark-mode .theme-toggle .toggle-thumb {
+    transform: translateX(16px);
+  }
+
+  .theme-toggle .toggle-label {
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+</style>
+
 <nav class="navbar navbar-expand-md bg-body-light border-bottom sticky-top">
     <div class="container-fluid">
         <a class="navbar-brand" href="/listings"><i class="fa-regular fa-compass"></i></a>
@@ -8,7 +149,7 @@
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-            <div class="nav-search nav-hovernav-search-search">
+            <div class="nav-search nav-hover nav-search-search">
                 <form class="d-flex" role="search" action="/listings/search" method="get" id="searchBox">
                     <input class="form-control me-2 search-inp" type="search"
                         placeholder="Search Location | Title | Price" aria-label="Search" name="q" id="mySearchInput" />
@@ -17,52 +158,88 @@
                     </button>
                 </form>
             </div>
-            <div class="navbar-nav">
+            <div class="navbar-nav d-flex align-items-center">
+
+                <!-- ── Day/Night Toggle ── -->
+                <button class="theme-toggle" id="themeToggle" title="Toggle Dark Mode">
+                    <div class="toggle-track">
+                        <div class="toggle-thumb" id="toggleThumb">
+                            <i class="fa-solid fa-sun" id="toggleIcon" style="color:#f59e0b;"></i>
+                        </div>
+                    </div>
+                    <span class="toggle-label" id="toggleLabel">Light</span>
+                </button>
+
                 <div class="dropdown">
                     <button class="btn btn-success dropdown-toggle" type="button" data-bs-toggle="dropdown"
                         aria-expanded="false">
                         <i class="fa-solid fa-circle-user"></i>&nbsp;&nbsp;&nbsp;
                     </button>
-                    <ul class="dropdown-menu">
+                    <ul class="dropdown-menu dropdown-menu-end">
                         <% if(!currUser) { %>
-                            <a class="nav-link" href="/signup"><i class="fa-solid fa-user-plus"></i>&nbsp; &nbsp;<b>Sign
-                                    up</b></a>
-                            <a class="nav-link" href="/login"><b><i class="fa-solid fa-user-check"></i>&nbsp; &nbsp;Log
-                                    in</b></a>
-                            <% } %>
-                                <% if(currUser) { %>
-                                    <h6 class="mt-1 nav-link"><b><i class="fa-solid fa-user"></i>
-                                            &nbsp; &nbsp;<%= currUser.username%>
-                                        </b></h6>
-                                    <a class="nav-link" href="/logout"><b><i
-                                                class="fa-solid fa-arrow-right-from-bracket"></i>&nbsp; &nbsp;Log
-                                            out</b></a>
-                                    <% } %>
-                                        <hr />
-                                        <a class="nav-link" href="/listings/new"><strong><i
-                                                    class="fa-solid fa-circle-plus"></i>&nbsp; &nbsp;Airbnb your
-                                                home</strong></a>
+                            <a class="nav-link" href="/signup"><i class="fa-solid fa-user-plus"></i>&nbsp; &nbsp;<b>Sign up</b></a>
+                            <a class="nav-link" href="/login"><b><i class="fa-solid fa-user-check"></i>&nbsp; &nbsp;Log in</b></a>
+                        <% } %>
+                        <% if(currUser) { %>
+                            <h6 class="mt-1 nav-link"><b><i class="fa-solid fa-user"></i>
+                                    &nbsp; &nbsp;<%= currUser.username%>
+                                </b></h6>
+                            <a class="nav-link" href="/logout"><b><i
+                                        class="fa-solid fa-arrow-right-from-bracket"></i>&nbsp; &nbsp;Log out</b></a>
+                        <% } %>
+                        <hr />
+                        <a class="nav-link" href="/listings/new"><strong><i
+                                    class="fa-solid fa-circle-plus"></i>&nbsp; &nbsp;Airbnb your home</strong></a>
                     </ul>
                 </div>
+
                 <div id="responsive-registration">
                     <% if(!currUser) { %>
-                        <a class="nav-link" href="/signup"><i class="fa-solid fa-user-plus"></i>&nbsp;&nbsp;<b>Sign
-                                up</b></a>
-                        <a class="nav-link" href="/login"><i class="fa-solid fa-user-check"></i>&nbsp;&nbsp;<b>Log
-                                in</b></a>
-                        <% } %>
-                            <% if(currUser) { %>
-                                <h6 class="mt-1 nav-link"><b><i class="fa-solid fa-user"></i>
-                                        &nbsp; &nbsp;<%= currUser.username%>
-                                    </b></h6>
-                                <a class="nav-link" href="/logout"><i
-                                        class="fa-solid fa-arrow-right-from-bracket"></i>&nbsp;<b>Log out</b></a>
-                                <% } %>
-                                    <a class="nav-link" href="/listings/new"><i
-                                            class="fa-solid fa-circle-plus"></i>&nbsp; &nbsp;<strong>Airbnb your
-                                            home</strong></a>
+                        <a class="nav-link" href="/signup"><i class="fa-solid fa-user-plus"></i>&nbsp;&nbsp;<b>Sign up</b></a>
+                        <a class="nav-link" href="/login"><i class="fa-solid fa-user-check"></i>&nbsp;&nbsp;<b>Log in</b></a>
+                    <% } %>
+                    <% if(currUser) { %>
+                        <h6 class="mt-1 nav-link"><b><i class="fa-solid fa-user"></i>
+                                &nbsp; &nbsp;<%= currUser.username%>
+                            </b></h6>
+                        <a class="nav-link" href="/logout"><i
+                                class="fa-solid fa-arrow-right-from-bracket"></i>&nbsp;<b>Log out</b></a>
+                    <% } %>
+                    <a class="nav-link" href="/listings/new"><i
+                            class="fa-solid fa-circle-plus"></i>&nbsp; &nbsp;<strong>Airbnb your home</strong></a>
                 </div>
             </div>
         </div>
     </div>
 </nav>
+
+<script>
+  const themeToggle = document.getElementById('themeToggle');
+  const toggleIcon  = document.getElementById('toggleIcon');
+  const toggleLabel = document.getElementById('toggleLabel');
+
+  // ── Load saved preference ──
+  if (localStorage.getItem('theme') === 'dark') {
+    document.body.classList.add('dark-mode');
+    toggleIcon.className = 'fa-solid fa-moon';
+    toggleIcon.style.color = '#a5b4fc';
+    toggleLabel.textContent = 'Dark';
+  }
+
+  // ── Toggle on click ──
+  themeToggle.addEventListener('click', () => {
+    const isDark = document.body.classList.toggle('dark-mode');
+
+    if (isDark) {
+      toggleIcon.className = 'fa-solid fa-moon';
+      toggleIcon.style.color = '#a5b4fc';
+      toggleLabel.textContent = 'Dark';
+      localStorage.setItem('theme', 'dark');
+    } else {
+      toggleIcon.className = 'fa-solid fa-sun';
+      toggleIcon.style.color = '#f59e0b';
+      toggleLabel.textContent = 'Light';
+      localStorage.setItem('theme', 'light');
+    }
+  });
+</script>
