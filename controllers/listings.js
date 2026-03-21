@@ -185,24 +185,15 @@ module.exports.reserveListing = async (req, res) => {
 
     const guest = req.user;
 
-    // ── Transporter Setup — Forced IPv4 via custom DNS lookup ✅ ──
-    const dns = require("dns");
+    // ── Transporter Setup — Using Standard Gmail Service ✅ ──
     const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 465,
-      secure: true, // Use SSL/TLS
+      service: "gmail",
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
       },
-      tls: {
-        rejectUnauthorized: false, // Don't fail on self-signed certs (common with Gmail SMTP)
-      },
-      // Force IPv4 resolution to prevent ENETUNREACH on Render's IPv6
-      lookup: (hostname, options, callback) => {
-        return dns.lookup(hostname, { family: 4 }, callback);
-      },
     });
+
 
 
 
