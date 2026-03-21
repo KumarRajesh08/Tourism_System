@@ -25,6 +25,13 @@ const flash = require("connect-flash");
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
 const User = require("./models/user.js");
+const dns = require("dns");
+
+// Force IPv4 for Render network stability
+if (dns.setDefaultResultOrder) {
+  dns.setDefaultResultOrder('ipv4first');
+}
+
 const csrf = require("csurf");
 
 const listingRouter = require("./routes/listing.js");
