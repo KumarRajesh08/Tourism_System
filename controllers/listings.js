@@ -185,24 +185,20 @@ module.exports.reserveListing = async (req, res) => {
 
     const guest = req.user;
 
-    // ── Transporter Setup — Forced IPv4 via resolve4 ✅ ──
-    const dns = require("dns");
+    // ── Transporter Setup — Explicit IPv4 and Timeouts ✅ ──
     const transporter = nodemailer.createTransport({
-      service: "gmail",
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
       },
-      // Strictly force IPv4 resolution
-      lookup: (hostname, options, callback) => {
-        dns.resolve4(hostname, (err, addresses) => {
-          if (err || !addresses.length) {
-            // Fallback to default lookup if resolve4 fails
-            return dns.lookup(hostname, options, callback);
-          }
-          callback(null, addresses[0], 4);
-        });
-      },
+      // Strictly force IPv4 resolution to prevent connection timeout on some environments
+      family: 4,
+      connectionTimeout: 20000,
+      greetingTimeout: 20000,
+      socketTimeout: 30000,
       tls: {
         rejectUnauthorized: false
       }
