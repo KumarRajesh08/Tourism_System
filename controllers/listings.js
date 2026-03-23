@@ -1,6 +1,20 @@
 const Listing = require("../models/listing");
 const nodemailer = require("nodemailer");
 
+// ── Transporter — Global banao ✅ ──
+const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true,       // ✅ 465 ke liye true
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+  tls: {
+    rejectUnauthorized: false,
+  },
+});
+
 module.exports.index = async (req, res) => {
   let allListings = await Listing.find();
   res.render("./listings/index.ejs", { allListings });
@@ -174,9 +188,9 @@ module.exports.destroyListing = async (req, res) => {
 };
 
 module.exports.reserveListing = async (req, res) => {
+  let listingId = req.params.id;
   try {
-    let { id } = req.params;
-    let listing = await Listing.findById(id).populate("owner");
+    let listing = await Listing.findById(listingId).populate("owner");
 
     if (!listing) {
       req.flash("error", "Listing not found!");
@@ -185,28 +199,17 @@ module.exports.reserveListing = async (req, res) => {
 
     const guest = req.user;
 
-    // ── Transporter Setup — Explicit IPv4 and Timeouts ✅ ──
-    const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 465,
-      secure: true,
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-      // Strictly force IPv4 resolution to prevent connection timeout on some environments
-      family: 4,
-      connectionTimeout: 20000,
-      greetingTimeout: 20000,
-      socketTimeout: 30000,
-      tls: {
-        rejectUnauthorized: false
-      }
-    });
+    if (!guest.email) {
+      req.flash("error", "Your account has no email!");
+      return res.redirect(`/listings/${listingId}`);
+    }
 
+    if (!listing.owner.email) {
+      req.flash("error", "Owner email not found!");
+      return res.redirect(`/listings/${listingId}`);
+    }
 
-
-
+    const appUrl = process.env.APP_URL || "https://tourism-system-2.onrender.com";
 
     // ── Mail to Guest ──
     const guestMail = {
@@ -245,7 +248,7 @@ module.exports.reserveListing = async (req, res) => {
             </table>
             <p style="color: #6b7280; font-size: 13px;">The property owner will contact you shortly to confirm the dates.</p>
             <div style="text-align: center; margin-top: 20px;">
-              <a href="${process.env.APP_URL || 'http://localhost:8080'}/listings/${listing._id}"
+              <a href="${appUrl}/listings/${listing._id}"
                 style="background: #1D9E75; color: white; padding: 12px 28px; border-radius: 8px; text-decoration: none; font-weight: bold;">
                 View Listing
               </a>
@@ -291,7 +294,7 @@ module.exports.reserveListing = async (req, res) => {
             </table>
             <p style="color: #6b7280; font-size: 13px;">Please contact the guest at <b>${guest.email}</b> to confirm booking dates.</p>
             <div style="text-align: center; margin-top: 20px;">
-              <a href="${process.env.APP_URL || 'http://localhost:8080'}/listings/${listing._id}"
+              <a href="${appUrl}/listings/${listing._id}"
                 style="background: #111827; color: white; padding: 12px 28px; border-radius: 8px; text-decoration: none; font-weight: bold;">
                 View Listing
               </a>
@@ -304,16 +307,15 @@ module.exports.reserveListing = async (req, res) => {
       `,
     };
 
-    // ── Send Both Mails ──
     await transporter.sendMail(guestMail);
     await transporter.sendMail(ownerMail);
 
     req.flash("success", "Reservation confirmed! Details sent to your email.");
-    res.redirect(`/listings/${id}`);
+    res.redirect(`/listings/${listingId}`);
 
   } catch (err) {
     console.log("RESERVE ERROR:", err);
     req.flash("error", "Reservation failed. Please try again!");
-    res.redirect(`/listings/${id}`);
+    res.redirect(`/listings/${listingId}`);
   }
 };
