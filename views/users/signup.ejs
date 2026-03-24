@@ -227,13 +227,13 @@
                 class="form-control"
                 name="username"
                 id="username"
-                placeholder="e.g. traveller_raj"
+                placeholder="e.g. traveller_raj123"
                 autocomplete="username"
                 maxlength="30"
                 required
               >
             </div>
-            <div class="field-hint" id="usernameHint">3–30 characters, letters, numbers, underscore</div>
+            <div class="field-hint" id="usernameHint">3–30 characters, must include a number</div>
           </div>
 
           <!-- Email -->
@@ -325,11 +325,11 @@
 
   uInp.addEventListener('input', () => {
     const v = uInp.value.trim();
-    if (!v) { setHint(uHint, uInp, '3–30 characters, letters, numbers, underscore', ''); return; }
-    if (/^[a-zA-Z0-9_]{3,30}$/.test(v))
+    if (!v) { setHint(uHint, uInp, '3–30 characters, must include a number', ''); return; }
+    if (/^(?=.*[0-9])[a-zA-Z0-9_]{3,30}$/.test(v))
       setHint(uHint, uInp, 'Looks good!', 'ok');
     else
-      setHint(uHint, uInp, 'Only letters, numbers, underscore — 3 to 30 chars', 'err');
+      setHint(uHint, uInp, 'Must be 3-30 chars and include at least one number', 'err');
   });
 
   // ── Email validation ──────────────────────────────
@@ -383,7 +383,7 @@
   document.getElementById('signupForm').addEventListener('submit', (e) => {
     let valid = true;
 
-    if (!/^[a-zA-Z0-9_]{3,30}$/.test(uInp.value.trim())) {
+    if (!/^(?=.*[0-9])[a-zA-Z0-9_]{3,30}$/.test(uInp.value.trim())) {
       setHint(uHint, uInp, 'Valid username required', 'err');
       valid = false;
     }

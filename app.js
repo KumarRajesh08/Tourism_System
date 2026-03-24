@@ -90,6 +90,18 @@ passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
+// ================= REFRESH USER FROM DB =================
+// Re-fetch user on every request so role changes reflect immediately
+app.use(async (req, res, next) => {
+  if (req.isAuthenticated() && req.user) {
+    try {
+      const freshUser = await User.findById(req.user._id);
+      if (freshUser) req.user = freshUser;
+    } catch (e) { /* ignore */ }
+  }
+  next();
+});
+
 // ================= CSRF =================
 const csrfProtection = csrf();
 app.use((req, res, next) => {

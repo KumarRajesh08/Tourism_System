@@ -11,12 +11,14 @@
                         <div class="mb-3">
                             <label for="username" class="form-label">Username</label>
                             <input type="text" class="form-control" name="username" id="username"
-                                placeholder="Enter Username" required>
+                                placeholder="e.g. sunny123" pattern="^(?=.*[0-9])[a-zA-Z0-9_]{3,30}$" required>
+                            <div class="invalid-feedback">Username must be 3-30 characters and contain at least one number.</div>
                         </div>
                         <div class="mb-3">
                             <label for="password" class="form-label">Password</label>
                             <input type="password" class="form-control" name="password" id="password"
-                                placeholder="Enter Password" required>
+                                placeholder="e.g. password123" required>
+                            <div class="invalid-feedback">Please enter your password.</div>
                         </div>
                         <button class="btn btn-success">Login</button>
                     </form>

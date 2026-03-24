@@ -1,67 +1,311 @@
 <% layout("/layouts/boilerplate") %>
 
-<div class="container mt-5">
-  <h1 class="mb-4">Admin Panel</h1>
+<style>
+  :root {
+    --admin-bg: #f3f4f6;
+    --admin-card-bg: #ffffff;
+    --admin-card-border: #e5e7eb;
+    --admin-text: #111827;
+    --admin-text-muted: #6b7280;
+    --admin-primary: #1D9E75;
+    --admin-danger: #ef4444;
+    --admin-secondary: #4b5563;
+  }
 
-  <div class="row mb-4">
-    <div class="col-md-6">
-      <div class="card p-3">
-        <h3>Users</h3>
-        <table class="table table-sm">
-          <thead>
-            <tr>
-              <th>Username</th>
-              <th>Email</th>
-              <th>Role</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% users.forEach((user) => { %>
-              <tr>
-                <td><%= user.username %></td>
-                <td><%= user.email %></td>
-                <td><%= user.role %></td>
-                <td>
-                  <form action="/admin/users/<%= user._id %>/toggle-role" method="post" style="display:inline">
-                    <button class="btn btn-sm btn-secondary" type="submit"><%= user.role === 'admin' ? 'Demote' : 'Promote' %></button>
-                  </form>
-                </td>
-              </tr>
-            <% }); %>
-          </tbody>
-        </table>
+  body.dark-mode {
+    --admin-bg: #111827;
+    --admin-card-bg: #1f2937;
+    --admin-card-border: #374151;
+    --admin-text: #f9fafb;
+    --admin-text-muted: #9ca3af;
+  }
+
+  .admin-wrapper {
+    background-color: var(--admin-bg);
+    min-height: calc(100vh - 100px);
+    padding-bottom: 3rem;
+    transition: background-color 0.3s;
+  }
+
+  .admin-header {
+    padding-top: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .admin-title {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: var(--admin-text);
+    margin: 0;
+  }
+
+  /* ── Stats Cards ── */
+  .stat-card {
+    background: var(--admin-card-bg);
+    border: 1px solid var(--admin-card-border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+  }
+
+  .stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+  }
+
+  .stat-icon.users { background: rgba(29, 158, 117, 0.1); color: var(--admin-primary); }
+  .stat-icon.listings { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+
+  .stat-info h4 {
+    font-size: 0.875rem;
+    color: var(--admin-text-muted);
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+  }
+
+  .stat-info .count {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--admin-text);
+  }
+
+  /* ── Dashboard Cards ── */
+  .db-card {
+    background: var(--admin-card-bg);
+    border: 1px solid var(--admin-card-border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 2rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+
+  .db-card-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--admin-card-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .db-card-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--admin-text);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* ── Table Styling ── */
+  .admin-table {
+    margin: 0;
+  }
+
+  .admin-table thead th {
+    background: var(--admin-bg);
+    color: var(--admin-text-muted);
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.75rem 1.5rem;
+    border-bottom: 1px solid var(--admin-card-border);
+  }
+
+  .admin-table tbody td {
+    padding: 1rem 1.5rem;
+    color: var(--admin-text);
+    vertical-align: middle;
+    border-bottom: 1px solid var(--admin-card-border);
+    font-size: 0.9rem;
+  }
+
+  .admin-table tbody tr:hover {
+    background: rgba(0,0,0,0.02);
+  }
+
+  body.dark-mode .admin-table tbody tr:hover {
+    background: rgba(255,255,255,0.02);
+  }
+
+  .badge-role {
+    padding: 0.25rem 0.6rem;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .badge-admin { background: rgba(29, 158, 117, 0.1); color: var(--admin-primary); }
+  .badge-user { background: rgba(107, 114, 128, 0.1); color: var(--admin-text-muted); }
+
+  /* ── Buttons ── */
+  .btn-action {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    transition: all 0.2s;
+  }
+
+  .btn-edit { background: rgba(59, 130, 246, 0.1); color: #3b82f6; border: none; }
+  .btn-edit:hover { background: #3b82f6; color: white; }
+
+  .btn-delete { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: none; }
+  .btn-delete:hover { background: #ef4444; color: white; }
+
+  .btn-role { 
+    background: rgba(107, 114, 128, 0.1); 
+    color: var(--admin-text-muted); 
+    border: none;
+    font-size: 0.75rem;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-weight: 600;
+  }
+  .btn-role:hover { background: var(--admin-secondary); color: white; }
+</style>
+
+<div class="admin-wrapper">
+  <div class="container admin-header">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="admin-title"><i class="fa-solid fa-gauge-high me-2"></i>Admin Dashboard</h1>
+      <span class="text-muted" style="font-size: 0.9rem;">Welcome back, <strong><%= currUser.username %></strong></span>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="row g-4 mb-4">
+      <div class="col-md-6 col-lg-3">
+        <div class="stat-card">
+          <div class="stat-icon users">
+            <i class="fa-solid fa-users"></i>
+          </div>
+          <div class="stat-info">
+            <h4>Total Users</h4>
+            <div class="count"><%= users.length %></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="stat-card">
+          <div class="stat-icon listings">
+            <i class="fa-solid fa-house-chimney"></i>
+          </div>
+          <div class="stat-info">
+            <h4>Total Listings</h4>
+            <div class="count"><%= listings.length %></div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="col-md-6">
-      <div class="card p-3">
-        <h3>Listings</h3>
-        <table class="table table-sm">
-          <thead>
-            <tr>
-              <th>Title</th>
-              <th>Owner</th>
-              <th>Price</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% listings.forEach((listing) => { %>
-              <tr>
-                <td><a href="/listings/<%= listing._id %>"><%= listing.title %></a></td>
-                <td><%= listing.owner?.username || 'N/A' %></td>
-                <td>₹<%= listing.price %></td>
-                <td>
-                  <form action="/admin/listings/<%= listing._id %>?_method=DELETE" method="post" style="display:inline">
-                    <button class="btn btn-sm btn-danger" type="submit">Delete</button>
-                  </form>
-                </td>
-              </tr>
-            <% }); %>
-          </tbody>
-        </table>
+    <div class="row">
+      <!-- Users Card -->
+      <div class="col-lg-12 col-xl-5">
+        <div class="db-card">
+          <div class="db-card-header">
+            <h3 class="db-card-title"><i class="fa-solid fa-user-shield"></i> User Management</h3>
+          </div>
+          <div class="table-responsive">
+            <table class="table admin-table">
+              <thead>
+                <tr>
+                  <th>User</th>
+                  <th>Role</th>
+                  <th class="text-end">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% users.forEach((user) => { %>
+                  <tr>
+                    <td>
+                      <div class="d-flex flex-column">
+                        <span class="fw-bold"><%= user.username %></span>
+                        <span class="text-muted small"><%= user.email %></span>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="badge-role <%= user.role === 'admin' ? 'badge-admin' : 'badge-user' %>">
+                        <%= user.role.toUpperCase() %>
+                      </span>
+                    </td>
+                    <td class="text-end">
+                      <form action="/admin/users/<%= user._id %>/toggle-role" method="post" style="display:inline">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                        <button class="btn-role" type="submit">
+                          <%= user.role === 'admin' ? 'Demote' : 'Promote' %>
+                        </button>
+                      </form>
+                    </td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Listings Card -->
+      <div class="col-lg-12 col-xl-7">
+        <div class="db-card">
+          <div class="db-card-header">
+            <h3 class="db-card-title"><i class="fa-solid fa-list-check"></i> Listings Management</h3>
+          </div>
+          <div class="table-responsive">
+            <table class="table admin-table">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Owner</th>
+                  <th>Price</th>
+                  <th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% listings.forEach((listing) => { %>
+                  <tr>
+                    <td class="fw-bold"><a href="/listings/<%= listing._id %>" class="text-decoration-none text-primary"><%= listing.title %></a></td>
+                    <td><span class="text-muted"><%= listing.owner?.username || 'N/A' %></span></td>
+                    <td><span class="fw-bold text-success">₹<%= listing.price.toLocaleString('en-IN') %></span></td>
+                    <td class="text-end">
+                      <div class="d-flex justify-content-end gap-2">
+                        <a href="/listings/<%= listing._id %>/edit" class="btn-action btn-edit" title="Edit">
+                          <i class="fa-solid fa-pen-to-square"></i>
+                        </a>
+                        <form action="/admin/listings/<%= listing._id %>?_method=DELETE" method="post" style="display:inline">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                          <button class="btn-action btn-delete" type="submit" title="Delete">
+                            <i class="fa-solid fa-trash"></i>
+                          </button>
+                        </form>
+                      </div>
+                    </td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </div>
+
