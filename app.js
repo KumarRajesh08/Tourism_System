@@ -37,6 +37,7 @@ const csrf = require("csurf");
 const listingRouter = require("./routes/listing.js");
 const reviewRouter = require("./routes/review.js");
 const userRouter = require("./routes/user.js");
+const adminRouter = require("./routes/admin.js");
 
 // ================= BASIC SETUP =================
 app.use(express.static(path.join(__dirname, "/public")));
@@ -120,6 +121,7 @@ app.get("/", (req, res) => {
 
 app.use("/listings", listingRouter);
 app.use("/listings/:id/reviews", reviewRouter);
+app.use("/admin", adminRouter);
 app.use("/", userRouter);
 
 // ================= CSRF ERROR =================

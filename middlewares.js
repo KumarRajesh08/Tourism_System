@@ -33,6 +33,13 @@ module.exports.isOwner = async (req, res, next) => {
   next();
 };
 
+module.exports.isAdmin = (req, res, next) => {
+  if (!req.user || req.user.role !== "admin") {
+    req.flash("error", "Admin access required.");
+    return res.redirect("/");
+  }
+  next();
+};
 
 module.exports.validateListing = (req, res, next) => {
   let { error } = listingSchema.validate(req.body);

@@ -184,6 +184,9 @@
                             <h6 class="mt-1 nav-link"><b><i class="fa-solid fa-user"></i>
                                     &nbsp; &nbsp;<%= currUser.username%>
                                 </b></h6>
+                            <% if (currUser.role === 'admin') { %>
+                                <a class="nav-link" href="/admin"><b><i class="fa-solid fa-shield-halved"></i>&nbsp; &nbsp;Admin Panel</b></a>
+                            <% } %>
                             <a class="nav-link" href="/logout"><b><i
                                         class="fa-solid fa-arrow-right-from-bracket"></i>&nbsp; &nbsp;Log out</b></a>
                         <% } %>
@@ -202,6 +205,9 @@
                         <h6 class="mt-1 nav-link"><b><i class="fa-solid fa-user"></i>
                                 &nbsp; &nbsp;<%= currUser.username%>
                             </b></h6>
+                        <% if (currUser.role === 'admin') { %>
+                            <a class="nav-link" href="/admin"><i class="fa-solid fa-shield-halved"></i>&nbsp;<b>Admin Panel</b></a>
+                        <% } %>
                         <a class="nav-link" href="/logout"><i
                                 class="fa-solid fa-arrow-right-from-bracket"></i>&nbsp;<b>Log out</b></a>
                     <% } %>
