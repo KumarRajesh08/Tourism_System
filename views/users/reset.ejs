@@ -1,0 +1,66 @@
+<% layout("/layouts/boilerplate") %>
+
+<style>
+    .glass-card {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 20px;
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        padding: 40px;
+        margin-top: 50px;
+    }
+    .btn-gradient {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        border: none;
+        color: white;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-gradient:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(56, 239, 125, 0.4);
+    }
+</style>
+
+<div class="row mt-3">
+    <div class="col-8 offset-2">
+        <div class="glass-card">
+            <h2 class="text-center mb-4">Reset Password</h2>
+            <p class="text-muted text-center mb-4">Enter your new password below. Make sure it's strong and secure.</p>
+            <form action="/reset/<%= token %>" method="POST" class="needs-validation" novalidate>
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <div class="mb-3">
+                    <label for="password" class="form-label">New Password</label>
+                    <input type="password" name="password" id="password" class="form-control" placeholder="Minimum 6 characters" minlength="6" required>
+                    <div class="invalid-feedback">Password must be at least 6 characters long.</div>
+                </div>
+                <div class="mb-3">
+                    <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                    <input type="password" name="confirmPassword" id="confirmPassword" class="form-control" placeholder="Re-enter password" required>
+                    <div class="invalid-feedback">Please confirm your password.</div>
+                </div>
+                <div class="d-grid">
+                    <button class="btn btn-gradient btn-lg">Update Password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Simple client-side validation for password matching
+    const password = document.getElementById("password");
+    const confirm = document.getElementById("confirmPassword");
+
+    function validatePassword() {
+        if (password.value != confirm.value) {
+            confirm.setCustomValidity("Passwords Don't Match");
+        } else {
+            confirm.setCustomValidity('');
+        }
+    }
+
+    password.onchange = validatePassword;
+    confirm.onkeyup = validatePassword;
+</script>

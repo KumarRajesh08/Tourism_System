@@ -1,0 +1,47 @@
+<% layout("/layouts/boilerplate") %>
+
+<style>
+    .glass-card {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 20px;
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        padding: 40px;
+        margin-top: 50px;
+    }
+    .btn-gradient {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: white;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-gradient:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(118, 75, 162, 0.4);
+    }
+</style>
+
+<div class="row mt-3">
+    <div class="col-8 offset-2">
+        <div class="glass-card">
+            <h2 class="text-center mb-4">Forgot Password</h2>
+            <p class="text-muted text-center mb-4">Enter your username and we'll send a link to the email associated with your account.</p>
+            <form action="/forgot-password" method="POST" class="needs-validation" novalidate>
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" name="username" id="username" class="form-control" placeholder="e.g. rajesh_23" required>
+                    <div class="invalid-feedback">Please enter your username.</div>
+                </div>
+                <div class="d-grid">
+                    <button class="btn btn-gradient btn-lg">Send Reset Link</button>
+                </div>
+            </form>
+            <div class="text-center mt-3">
+                <a href="/login" class="text-decoration-none">Back to Login</a>
+            </div>
+        </div>
+    </div>
+</div>
