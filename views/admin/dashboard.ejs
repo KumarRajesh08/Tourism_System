@@ -188,7 +188,13 @@
   <div class="container admin-header">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h1 class="admin-title"><i class="fa-solid fa-gauge-high me-2"></i>Admin Dashboard</h1>
-      <span class="text-muted" style="font-size: 0.9rem;">Welcome back, <strong><%= currUser.username %></strong></span>
+      <div class="d-flex gap-2 align-items-center">
+        <a href="/admin/report" class="btn btn-primary d-flex align-items-center gap-2" 
+           style="background: var(--admin-primary); border: none; border-radius: 8px; padding: 10px 20px; font-weight: 600;">
+          <i class="fa-solid fa-file-invoice"></i> Generate & Email Report
+        </a>
+        <span class="text-muted d-none d-md-block" style="font-size: 0.9rem;">Welcome, <strong><%= currUser.username %></strong></span>
+      </div>
     </div>
 
     <!-- Stats Row -->
@@ -215,6 +221,17 @@
           </div>
         </div>
       </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="stat-card">
+          <div class="stat-icon" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;">
+            <i class="fa-solid fa-calendar-check"></i>
+          </div>
+          <div class="stat-info">
+            <h4>Reservations</h4>
+            <div class="count"><%= reservations.length %></div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="row">
@@ -238,7 +255,7 @@
                   <tr>
                     <td>
                       <div class="d-flex flex-column">
-                        <span class="fw-bold"><%= user.username %></span>
+                        <span class="fw-bold text-dark"><%= user.username %></span>
                         <span class="text-muted small"><%= user.email %></span>
                       </div>
                     </td>
@@ -298,6 +315,41 @@
                         </form>
                       </div>
                     </td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reservations Card -->
+      <div class="col-12">
+        <div class="db-card">
+          <div class="db-card-header">
+            <h3 class="db-card-title"><i class="fa-solid fa-receipt"></i> Recent Reservations</h3>
+          </div>
+          <div class="table-responsive">
+            <table class="table admin-table">
+              <thead>
+                <tr>
+                  <th>Booking ID</th>
+                  <th>Listing</th>
+                  <th>Guest</th>
+                  <th>Owner</th>
+                  <th>Price</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% reservations.forEach((resv) => { %>
+                  <tr>
+                    <td><code class="fw-bold text-dark"><%= resv.bookingId %></code></td>
+                    <td><span class="fw-bold"><%= resv.listing ? resv.listing.title : 'Deleted' %></span></td>
+                    <td><%= resv.guest ? resv.guest.username : 'N/A' %></td>
+                    <td><%= resv.owner ? resv.owner.username : 'N/A' %></td>
+                    <td class="text-success fw-bold">₹<%= resv.price.toLocaleString('en-IN') %></td>
+                    <td class="text-muted small"><%= new Date(resv.createdAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }) %></td>
                   </tr>
                 <% }); %>
               </tbody>

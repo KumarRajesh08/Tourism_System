@@ -33,6 +33,14 @@
     <%- include("../includes/navbar.ejs") %>
 
     <div class="container">
+        <% if (success && success.length && success[0].includes("Reservation confirmed")) { %>
+            <script>
+                window.showReservationSuccess = true;
+                window.reservationSuccessMsg = "<%= success[0] %>";
+            </script>
+        <% } %>
+
+        <%- include("../includes/success_popup.ejs") %>
         <%- include("../includes/flash.ejs") %>
         <%- body %> 
     </div>

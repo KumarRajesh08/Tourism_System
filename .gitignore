@@ -3,5 +3,6 @@ node_modules/
 **/.Ds_Store
 mail_debug.log
 check_*.js
-test_mail.js
+test_*.js
 verify_fix.js
+upload_3d_asset.js
